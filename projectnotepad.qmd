@@ -1,0 +1,74 @@
+---
+title: "Project notepad"
+subtitle: "For the project"
+author: "David Goh"
+format: pdf
+editor: visual
+---
+
+## Packages
+
+```{r}
+#| label: load-pkgs
+#| message: false
+#| warning: false
+ 
+library(tidyverse)
+library(tidymodels)
+library(knitr)
+```
+
+## Load data
+
+```{r}
+#| label: load-data
+#| message: false
+
+abortion_data <- read_csv("data/wvs-usa-abortion-attitudes-data.csv")
+```
+
+## Exploratory Data Analysis
+
+Visualization and summary statistics for the response variable
+
+``` {r visualization-summary}
+ggplot(abortion_data, aes(x = aj)) +
+  geom_histogram(binwidth = 1, aes(y=..density..)) + 
+  geom_density(color = "red") +
+  labs(title = "Histogram of attitudes full data set")
+
+summary(abortion_data$aj)
+
+```
+
+## EDA on how to populate "ideology"
+
+We will run all EDA on the set of responses that include ideology values and separately on the set of responses that do not in order to inform how we should populate those values.
+
+``` {r visualize-ideology}
+
+all_complete <- abortion_data[complete.cases(abortion_data),]
+
+ggplot(all_complete, aes(x = aj)) +
+  geom_histogram(binwidth = 1, aes(y=..density..)) + 
+  geom_density(color = "red") +
+  labs(title = "Histogram of attitudes only complete entries data set")
+summary(all_complete$aj)
+
+no_ideology <- abortion_data[!(abortion_data$ideology==""),]
+
+ggplot(no_ideology, aes(x = aj)) +
+  geom_histogram(binwidth = 1, aes(y=..density..))+ 
+  geom_density(color = "red") +
+  labs(title = "Histogram of attitudes excluding ideology=NA data set")
+summary(no_ideology$aj)
+
+```
+
+## List of variables that will be considered as predictors
+
+To discuss as group
+
+## Run MLR on some variables
+
+Just to show a preview of our analysis
