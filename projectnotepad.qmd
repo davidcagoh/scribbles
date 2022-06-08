@@ -25,13 +25,14 @@ library(knitr)
 #| message: false
 
 abortion_data <- read_csv("data/wvs-usa-abortion-attitudes-data.csv")
+glimpse(abortion_data)
 ```
 
 ## Exploratory Data Analysis
 
 Visualization and summary statistics for the response variable
 
-``` {r visualization-summary}
+```{r visualization-summary}
 ggplot(abortion_data, aes(x = aj)) +
   geom_histogram(binwidth = 1, aes(y=..density..)) + 
   geom_density(color = "red") +
@@ -45,7 +46,7 @@ summary(abortion_data$aj)
 
 We will run all EDA on the set of responses that include ideology values and separately on the set of responses that do not in order to inform how we should populate those values.
 
-``` {r visualize-ideology}
+```{r visualize-ideology}
 
 all_complete <- abortion_data[complete.cases(abortion_data),]
 
@@ -71,4 +72,52 @@ To discuss as group
 
 ## Run MLR on some variables
 
-Just to show a preview of our analysis
+```{r main-fit}
+mlr_main_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(aj ~ collegeed + female + ideology + trustmostpeople + godimportant, data = abortion_data)
+
+tidy(mlr_main_fit)
+```
+
+BELOW IS COPIED
+
+We now explore 3 different MLR models, each with 6 predictor variables
+chosen from the above.
+
+```{r model1}
+#| warning: false
+# predictors: year, age, female, ideology, cai, respectauthority
+model1_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(aj ~ year + age + female + ideology + cai + respectauthority, data = abortion_data)
+
+glance(model1_fit) %>% select(r.squared, adj.r.squared, AIC, BIC)
+
+```
+
+```{r model2}
+#| warning: false
+# predictors: year, age, ideology, cai, respectauthority, nationalpride
+model2_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(aj ~ year + age + ideology + cai + respectauthority + nationalpride, data = abortion_data)
+
+glance(model2_fit) %>% select(r.squared, adj.r.squared, AIC, BIC)
+
+```
+
+```{r model3}
+#| warning: false
+# predictors: year, age, female, ideology, cai, nationalpride
+model3_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(aj ~ year + age + female + ideology + cai + nationalpride, data = abortion_data)
+
+glance(model3_fit) %>% select(r.squared, adj.r.squared, AIC, BIC)
+```
+
+Comparing the adjusted R-squared, AIC and BIC values, it is model 2 that
+has the highest adjusted R-squared and the lowest AIC and BIC of the 3
+models. **Thus, we will use model 2 with the following predictors: year,
+age, ideology, cai, respectauthority, nationalpride.**
